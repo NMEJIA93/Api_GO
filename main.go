@@ -1,28 +1,35 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"log"
 	"net/http"
+	"time"
+
+	"github.com/NMEJIA93/Api_GO/src/user"
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	port := ":3333"
-	http.HandleFunc("/user", getUsers)
-	http.HandleFunc("/courses", getCourses)
 
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		fmt.Println(err)
+	router := mux.NewRouter()
+
+	userEnd := user.MakeEndpoints()
+
+	router.HandleFunc("/user", userEnd.Get).Methods("GET")
+	router.HandleFunc("/user", userEnd.GetAll).Methods("GET")
+	router.HandleFunc("/user", userEnd.Create).Methods("POST")
+	router.HandleFunc("/user", userEnd.Update).Methods("PUT")
+	router.HandleFunc("/user", userEnd.Delete).Methods("DELETE")
+
+	srv := &http.Server{
+		Handler:      router,
+		Addr:         "127.0.0.1:8000",
+		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  5 * time.Second,
 	}
-}
 
-func getUsers(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET /users")
-	io.WriteString(w, "This is My user endpoint!\n")
-}
-
-func getCourses(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET /courses")
-	io.WriteString(w, "This is My course endpoint!\n")
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
