@@ -1,20 +1,48 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/NMEJIA93/Api_GO/src/user"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
 
 	router := mux.NewRouter()
 
-	userService := user.NewService()
+	_ = godotenv.Load()
 
+	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		"root",
+		"root",
+		"localhost",
+		"3320",
+		"go_course")
+
+	db, err1 := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err1 != nil {
+		log.Fatalf("failed to initialize database, got error %v", err1)
+	}
+
+	er := db.Debug().AutoMigrate(&user.User{})
+	if er != nil {
+		log.Fatal(er)
+	}
+
+	er = db.AutoMigrate(&user.User{})
+
+	if er != nil {
+		log.Fatal(er)
+	}
+
+	userService := user.NewService()
 	userEnd := user.MakeEndpoints(userService)
 
 	router.HandleFunc("/user", userEnd.Get).Methods("GET")
