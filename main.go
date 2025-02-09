@@ -13,7 +13,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	userEnd := user.MakeEndpoints()
+	userService := user.NewService()
+
+	userEnd := user.MakeEndpoints(userService)
 
 	router.HandleFunc("/user", userEnd.Get).Methods("GET")
 	router.HandleFunc("/user", userEnd.GetAll).Methods("GET")
