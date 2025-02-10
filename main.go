@@ -20,6 +20,8 @@ func main() {
 
 	_ = godotenv.Load()
 
+	l := log.New(os.Stdout, "user-api", log.LstdFlags|log.Lshortfile)
+
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DATABASE_USER"),
 		os.Getenv("DATABASE_PASSWORD"),
@@ -44,7 +46,8 @@ func main() {
 		log.Fatal(er)
 	}
 
-	userService := user.NewService()
+	userRepo := user.NewRepository(l, db)
+	userService := user.NewService(l, userRepo)
 	userEnd := user.MakeEndpoints(userService)
 
 	router.HandleFunc("/user", userEnd.Get).Methods("GET")

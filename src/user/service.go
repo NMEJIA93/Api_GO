@@ -3,16 +3,29 @@ package user
 import "log"
 
 type Service interface {
-	Create(firstName, lastName, email, password string) error
+	Create(dto CreateUserDTO) error
 }
 
-type service struct{}
-
-func NewService() Service {
-	return &service{}
+type service struct {
+	log  *log.Logger
+	repo Respository
 }
 
-func (s service) Create(firstName, lastName, email, password string) error {
-	log.Println("Create User Service")
+func NewService(log *log.Logger, repo Respository) Service {
+	return &service{
+		log:  log,
+		repo: repo,
+	}
+}
+
+func (s service) Create(dto CreateUserDTO) error {
+	s.log.Println("Create User Service")
+	user := User{
+		FirstName: dto.FirstName,
+		LastName:  dto.LastName,
+		Email:     dto.Email,
+		Phone:     dto.Phone,
+	}
+	s.repo.Create(&user)
 	return nil
 }

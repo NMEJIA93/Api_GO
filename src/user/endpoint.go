@@ -56,7 +56,14 @@ func makeCreateEndpoint(s Service) Controller {
 			json.NewEncoder(w).Encode(ErrorResp{"first name is required"})
 		}
 
-		serviceErr := s.Create(req.FirstName, req.LastName, req.Email, req.Phone)
+		dto := CreateUserDTO{
+			FirstName: req.FirstName,
+			LastName:  req.LastName,
+			Email:     req.Email,
+			Phone:     req.Phone,
+		}
+
+		serviceErr := s.Create(dto)
 		if serviceErr != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(ErrorResp{serviceErr.Error()})
