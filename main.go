@@ -50,11 +50,12 @@ func main() {
 	userService := user.NewService(l, userRepo)
 	userEnd := user.MakeEndpoints(userService)
 
-	router.HandleFunc("/user", userEnd.Get).Methods("GET")
+	router.HandleFunc("/user/{id}", userEnd.Get).Methods("GET")
 	router.HandleFunc("/user", userEnd.GetAll).Methods("GET")
 	router.HandleFunc("/user", userEnd.Create).Methods("POST")
 	router.HandleFunc("/user", userEnd.Update).Methods("PUT")
-	router.HandleFunc("/user", userEnd.Delete).Methods("DELETE")
+	router.HandleFunc("/user/{id}", userEnd.Update).Methods("PATCH")
+	router.HandleFunc("/user/{id}", userEnd.Delete).Methods("DELETE")
 
 	srv := &http.Server{
 		Handler:      router,

@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -63,15 +64,22 @@ func makeCreateEndpoint(s Service) Controller {
 			Phone:     req.Phone,
 		}
 
-		serviceErr := s.Create(dto)
+		user, serviceErr := s.Create(dto)
 		if serviceErr != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(ErrorResp{serviceErr.Error()})
 			return
 		}
+		responseDto := ResponseUserDto{
+			ID:        user.ID,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+			Phone:     user.Phone,
+		}
 
-		fmt.Println("Create user")
-		json.NewEncoder(w).Encode(req)
+		fmt.Println("Create user: ", responseDto.ID)
+		json.NewEncoder(w).Encode(responseDto)
 	}
 }
 
@@ -84,15 +92,29 @@ func makeDeleteEndpoint(s Service) Controller {
 
 func makeGetEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
+		path := mux.Vars(r)
+		id := path["id"]
+		user, err := s.Get(id)
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(ErrorResp{err.Error()})
+			return
+		}
 		fmt.Println("Get user")
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+		json.NewEncoder(w).Encode(user)
 	}
 }
 
 func makeGetAllEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Get All user")
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+		users, err := s.GetAll()
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(ErrorResp{err.Error()})
+			return
+		}
+		json.NewEncoder(w).Encode(users)
 	}
 }
 

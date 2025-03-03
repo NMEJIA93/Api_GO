@@ -3,7 +3,9 @@ package user
 import "log"
 
 type Service interface {
-	Create(dto CreateUserDTO) error
+	Create(dto CreateUserDTO) (*User, error)
+	Get(id string) (*User, error)
+	GetAll() ([]User, error)
 }
 
 type service struct {
@@ -18,7 +20,7 @@ func NewService(log *log.Logger, repo Respository) Service {
 	}
 }
 
-func (s service) Create(dto CreateUserDTO) error {
+func (s service) Create(dto CreateUserDTO) (*User, error) {
 	s.log.Println("Create User Service")
 	user := User{
 		FirstName: dto.FirstName,
@@ -26,6 +28,25 @@ func (s service) Create(dto CreateUserDTO) error {
 		Email:     dto.Email,
 		Phone:     dto.Phone,
 	}
-	s.repo.Create(&user)
-	return nil
+	if err := s.repo.Create(&user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (s service) GetAll() ([]User, error) {
+	users, err := s.repo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (s service) Get(id string) (*User, error) {
+	user, err := s.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
