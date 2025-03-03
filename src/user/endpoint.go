@@ -85,8 +85,17 @@ func makeCreateEndpoint(s Service) Controller {
 
 func makeDeleteEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
+		path := mux.Vars(r)
+		id := path["id"]
+		err := s.Delete(id)
+		if err != nil {
+			w.WriteHeader(400)
+			json.NewEncoder(w).Encode(ErrorResp{"User not found"})
+			return
+		}
+
 		fmt.Println("Delete user")
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+		json.NewEncoder(w).Encode(map[string]string{"data": "Success"})
 	}
 }
 

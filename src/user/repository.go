@@ -11,7 +11,7 @@ type Respository interface {
 	Create(user *User) error
 	GetAll() ([]User, error)
 	Get(id string) (*User, error)
-	//Delete(id string) error
+	Delete(id string) error
 }
 
 type repository struct {
@@ -59,4 +59,13 @@ func (r *repository) Get(id string) (*User, error) {
 	return &user, nil
 }
 
-//func (r *repository) Delete(id string)
+func (r *repository) Delete(id string) error {
+	user := User{ID: id}
+	//Eliminado Fisico
+	//result := r.db.Delete(&user)
+	result := r.db.Delete(&user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
