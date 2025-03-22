@@ -23,6 +23,13 @@ type (
 		Phone     string `json:"phone"`
 	}
 
+	UpdateReq struct {
+		FirstName *string `json:"first_name"`
+		LastName  *string `json:"last_name"`
+		Email     *string `json:"email"`
+		Phone     *string `json:"phone"`
+	}
+
 	ErrorResp struct {
 		Error string `json:"error"`
 	}
@@ -130,6 +137,38 @@ func makeGetAllEndpoint(s Service) Controller {
 func makeUpdateEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Update user")
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+
+		var req UpdateReq
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ErrorResp{"Invalid request"})
+			return
+		}
+
+		if req.FirstName != nil && *req.FirstName == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ErrorResp{"first name is required"})
+			return
+		}
+
+		if req.FirstName != nil && *req.LastName == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ErrorResp{"last name is required"})
+			return
+		}
+
+		path := mux.Vars(r)
+		id := path["id"]
+
+		err = s.Update(id, req.FirstName, req.LastName, req.Email, req.Phone)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(ErrorResp{"User not found"})
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"data": "success"})
 	}
 }
