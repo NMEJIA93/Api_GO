@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/NMEJIA93/Api_GO/pkg/bootstrap"
 	"github.com/NMEJIA93/Api_GO/src/user"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -20,30 +17,11 @@ func main() {
 
 	_ = godotenv.Load()
 
-	l := log.New(os.Stdout, "user-api", log.LstdFlags|log.Lshortfile)
+	l := bootstrap.InitLogger()
 
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		os.Getenv("DATABASE_USER"),
-		os.Getenv("DATABASE_PASSWORD"),
-		os.Getenv("DATABASE_HOST"),
-		os.Getenv("DATABASE_PORT"),
-		os.Getenv("DATABASE_NAME"))
-
-	fmt.Println(dsn)
-	db, err1 := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err1 != nil {
-		log.Fatalf("failed to initialize database, got error %v", err1)
-	}
-
-	er := db.Debug().AutoMigrate(&user.User{})
-	if er != nil {
-		log.Fatal(er)
-	}
-
-	er = db.AutoMigrate(&user.User{})
-
-	if er != nil {
-		log.Fatal(er)
+	db, err := bootstrap.BDConnection()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	userRepo := user.NewRepository(l, db)
@@ -64,8 +42,8 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 	}
 
-	err := srv.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
+	err1 := srv.ListenAndServe()
+	if err1 != nil {
+		log.Fatal(err1)
 	}
 }
