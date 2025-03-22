@@ -33,6 +33,12 @@ type (
 	ErrorResp struct {
 		Error string `json:"error"`
 	}
+
+	Response struct {
+		Status int         `json:"status"`
+		Data   interface{} `json:"data,omitempty"`
+		Error  string      `json:"error,omitempty"`
+	}
 )
 
 func MakeEndpoints(s Service) Endpoints {
@@ -51,17 +57,21 @@ func makeCreateEndpoint(s Service) Controller {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"Invalid request"})
+			json.NewEncoder(w).Encode(&Response{Status: 400, Error: "Invalid request", Data: nil})
 			return
 		}
 
 		if req.FirstName == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"first name is required"})
+			json.NewEncoder(w).Encode(&Response{Status: 400, Error: "first name is required", Data: nil})
 		}
 		if req.LastName == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"first name is required"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "last name is required",
+				Data:   nil},
+			)
 		}
 
 		dto := CreateUserDTO{
@@ -74,7 +84,11 @@ func makeCreateEndpoint(s Service) Controller {
 		user, serviceErr := s.Create(dto)
 		if serviceErr != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{serviceErr.Error()})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  serviceErr.Error(),
+			})
+
 			return
 		}
 		responseDto := ResponseUserDto{
@@ -86,7 +100,10 @@ func makeCreateEndpoint(s Service) Controller {
 		}
 
 		fmt.Println("Create user: ", responseDto.ID)
-		json.NewEncoder(w).Encode(responseDto)
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   responseDto,
+		})
 	}
 }
 
@@ -97,12 +114,18 @@ func makeDeleteEndpoint(s Service) Controller {
 		err := s.Delete(id)
 		if err != nil {
 			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(ErrorResp{"User not found"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "User not found",
+			})
 			return
 		}
 
 		fmt.Println("Delete user")
-		json.NewEncoder(w).Encode(map[string]string{"data": "Success"})
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   "Success",
+		})
 	}
 }
 
@@ -113,11 +136,17 @@ func makeGetEndpoint(s Service) Controller {
 		user, err := s.Get(id)
 		if err != nil {
 			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(ErrorResp{err.Error()})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "User not found",
+			})
 			return
 		}
 		fmt.Println("Get user")
-		json.NewEncoder(w).Encode(user)
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   user,
+		})
 	}
 }
 
@@ -127,10 +156,16 @@ func makeGetAllEndpoint(s Service) Controller {
 		users, err := s.GetAll()
 		if err != nil {
 			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(ErrorResp{err.Error()})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  err.Error(),
+			})
 			return
 		}
-		json.NewEncoder(w).Encode(users)
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   users,
+		})
 	}
 }
 
@@ -142,19 +177,28 @@ func makeUpdateEndpoint(s Service) Controller {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"Invalid request"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "Invalid request",
+			})
 			return
 		}
 
 		if req.FirstName != nil && *req.FirstName == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"first name is required"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "first name is required",
+			})
 			return
 		}
 
 		if req.FirstName != nil && *req.LastName == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"last name is required"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "last name is required",
+			})
 			return
 		}
 
@@ -165,10 +209,16 @@ func makeUpdateEndpoint(s Service) Controller {
 
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ErrorResp{"User not found"})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "user not found",
+			})
 			return
 		}
 
-		json.NewEncoder(w).Encode(map[string]string{"data": "success"})
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   "Success",
+		})
 	}
 }

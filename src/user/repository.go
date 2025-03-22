@@ -64,10 +64,17 @@ func (r *repository) Delete(id string) error {
 	user := User{ID: id}
 	//Eliminado Fisico
 	//result := r.db.Delete(&user)
-	err := r.db.Delete(&user).Error
+	err := r.db.First(&user).Error
 	if err != nil {
 		return err
 	}
+
+	result := r.db.Delete(&user).Error
+
+	if result != nil {
+		return result
+	}
+	
 	return nil
 }
 
