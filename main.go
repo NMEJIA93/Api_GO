@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/NMEJIA93/Api_GO/pkg/bootstrap"
+	"github.com/NMEJIA93/Api_GO/src/course"
 	"github.com/NMEJIA93/Api_GO/src/user"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -28,12 +29,18 @@ func main() {
 	userService := user.NewService(l, userRepo)
 	userEnd := user.MakeEndpoints(userService)
 
+	courseRepo := course.NewRepository(l, db)
+	courseService := course.NewService(l, courseRepo)
+	courseEnd := course.MakeEndpoints(courseService)
+
 	router.HandleFunc("/user/{id}", userEnd.Get).Methods("GET")
 	router.HandleFunc("/user", userEnd.GetAll).Methods("GET")
 	router.HandleFunc("/user", userEnd.Create).Methods("POST")
 	router.HandleFunc("/user", userEnd.Update).Methods("PUT")
 	router.HandleFunc("/user/{id}", userEnd.Update).Methods("PATCH")
 	router.HandleFunc("/user/{id}", userEnd.Delete).Methods("DELETE")
+
+	router.HandleFunc("/courses", courseEnd.Create).Methods("POST")
 
 	srv := &http.Server{
 		Handler:      router,

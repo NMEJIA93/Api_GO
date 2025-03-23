@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"fmt"
+	"github.com/NMEJIA93/Api_GO/src/course"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -35,6 +36,10 @@ func BDConnection() (*gorm.DB, error) {
 
 	if os.Getenv("DATABASE_AUTO_MIGRATE") == "true" {
 		if err := db.AutoMigrate(&user.User{}); err != nil {
+			return nil, err
+		}
+
+		if err := db.AutoMigrate(&course.Course{}); err != nil {
 			return nil, err
 		}
 	}
