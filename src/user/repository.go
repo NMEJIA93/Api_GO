@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-
-	"github.com/google/uuid"
 )
 
 type Respository interface {
@@ -32,7 +30,6 @@ func NewRepository(log *log.Logger, db *gorm.DB) Respository {
 }
 
 func (r *repository) Create(user *User) error {
-	user.ID = uuid.New().String()
 
 	if err := r.db.Create(user).Error; err != nil {
 		r.log.Printf("Error while creating user: %v", err)
