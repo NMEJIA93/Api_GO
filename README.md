@@ -2,7 +2,7 @@
 
 ## 📄 Project Description
 
-This project is an API developed in Go that allows managing users. It uses GORM for interaction with the MySQL database and Gorilla Mux for routing HTTP requests.
+This project is an API developed in Go that allows managing users and courses. It uses GORM for interaction with the MySQL database and Gorilla Mux for routing HTTP requests.
 
 ## 🛠️ Language and Technologies
 
@@ -48,6 +48,7 @@ This project is an API developed in Go that allows managing users. It uses GORM 
     DATABASE_NAME=go_course
     DATABASE_DEBUG=true
     DATABASE_AUTO_MIGRATE=true
+    PAGINATOR_LIMIT_DEFAULT=15
     ```
 2. Build and start the Docker containers:
     ```sh
@@ -58,8 +59,9 @@ This project is an API developed in Go that allows managing users. It uses GORM 
     go run main.go
     ```
 
-
 ## 📡 Exposed Endpoints and Examples
+
+### Users
 
 - **GET /user/{id}**: Retrieves a user by ID.
     ```sh
@@ -84,6 +86,21 @@ This project is an API developed in Go that allows managing users. It uses GORM 
 - **DELETE /user/{id}**: Deletes a user by ID.
     ```sh
     curl -X DELETE http://127.0.0.1:8000/user/{id}
+    ```
+
+### Courses
+
+- **POST /courses**: Creates a new course.
+    ```sh
+    curl -X POST http://127.0.0.1:8000/courses -d '{"name":"Go Programming", "start_date":"2023-01-01", "end_date":"2023-06-01"}'
+    ```
+- **GET /courses/{id}**: Retrieves a course by ID.
+    ```sh
+    curl -X GET http://127.0.0.1:8000/courses/{id}
+    ```
+- **GET /courses**: Retrieves all courses.
+    ```sh
+    curl -X GET http://127.0.0.1:8000/courses
     ```
 
 ## 🏗️ Architecture
@@ -117,18 +134,26 @@ Api_GO
 ├── pkg/
 │   └── bootstrap/
 │       └── bootstrap.go
+│   └── meta/
+│       └── meta.go
 ├── src/
+│   └── course/
+│       ├── domain.go
+│       ├── dto.go
+│       ├── [endpoint.go](http://_vscodecontentref_/1)
+│       ├── repository.go
+│       └── service.go
 │   └── user/
 │       ├── domain.go
 │       ├── dto.go
-│       ├── endpoint.go
+│       ├── [endpoint.go](http://_vscodecontentref_/2)
 │       ├── repository.go
 │       └── service.go
 ├── .env
 ├── .gitignore
-├── [docker-compose.yml](http://_vscodecontentref_/1)
-├── [go.mod](http://_vscodecontentref_/2)
-├── [go.sum](http://_vscodecontentref_/3)
+├── [docker-compose.yml](http://_vscodecontentref_/3)
+├── [go.mod](http://_vscodecontentref_/4)
+├── [go.sum](http://_vscodecontentref_/5)
 ├── LICENSE
-├── [main.go](http://_vscodecontentref_/4)
-└── [README.md](http://_vscodecontentref_/5)
+├── [main.go](http://_vscodecontentref_/6)
+└── [README.md](http://_vscodecontentref_/7)
