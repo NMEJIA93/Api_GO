@@ -13,6 +13,7 @@ type (
 		GetByID(id string) (*Course, error)
 		GetAll(filter Filters, offset int, limit int) ([]Course, error)
 		Count(filters Filters) (int, error)
+		Delete(id string) error
 	}
 
 	repository struct {
@@ -69,6 +70,20 @@ func (r *repository) Count(filters Filters) (int, error) {
 	}
 
 	return int(count), nil
+}
+
+func (r *repository) Delete(id string) error {
+	course := Course{ID: id}
+	err := r.db.First(&course).Error
+	if err != nil {
+		return err
+	}
+
+	result := r.db.Delete(&course).Error
+	if result != nil {
+		return result
+	}
+	return nil
 }
 
 func applyFilters(tx *gorm.DB, filters Filters) *gorm.DB {

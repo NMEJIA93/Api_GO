@@ -15,6 +15,7 @@ type (
 		Create  Controller
 		GetById Controller
 		GetAll  Controller
+		Detele  Controller
 	}
 
 	CreateReq struct {
@@ -36,6 +37,25 @@ func MakeEndpoints(s Service) Endpoints {
 		Create:  makeCreateEndpoint(s),
 		GetById: makeGetByIdEndpoint(s),
 		GetAll:  makeGetAllEndpoint(s),
+		Detele:  makeDeleteEndpoint(s),
+	}
+}
+func makeDeleteEndpoint(s Service) Controller {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := mux.Vars(r)
+		id := path["id"]
+		err := s.Delete(id)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  err.Error()})
+			return
+		}
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   "Success",
+		})
 	}
 }
 

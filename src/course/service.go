@@ -11,6 +11,7 @@ type (
 		Get(id string) (*Course, error)
 		GetAll(filter Filters, offset int, limit int) ([]Course, error)
 		Count(filter Filters) (int, error)
+		Delete(id string) error
 	}
 	service struct {
 		log  *log.Logger
@@ -73,4 +74,8 @@ func (s service) Create(dto CreateCourseDTO) (*Course, error) {
 
 func (s service) Count(filter Filters) (int, error) {
 	return s.repo.Count(filter)
+}
+
+func (s service) Delete(id string) error {
+	return s.repo.Delete(id)
 }
