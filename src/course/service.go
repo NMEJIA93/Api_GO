@@ -12,6 +12,7 @@ type (
 		GetAll(filter Filters, offset int, limit int) ([]Course, error)
 		Count(filter Filters) (int, error)
 		Delete(id string) error
+		Update(course UpdateCourseDTO) error
 	}
 	service struct {
 		log  *log.Logger
@@ -27,6 +28,10 @@ func NewService(log *log.Logger, repo Repository) Service {
 		log:  log,
 		repo: repo,
 	}
+}
+
+func (s service) Update(course UpdateCourseDTO) error {
+	return s.repo.Update(course)
 }
 
 func (s service) Get(id string) (*Course, error) {

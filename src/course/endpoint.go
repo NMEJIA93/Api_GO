@@ -15,7 +15,8 @@ type (
 		Create  Controller
 		GetById Controller
 		GetAll  Controller
-		Detele  Controller
+		Delete  Controller
+		Update  Controller
 	}
 
 	CreateReq struct {
@@ -37,9 +38,51 @@ func MakeEndpoints(s Service) Endpoints {
 		Create:  makeCreateEndpoint(s),
 		GetById: makeGetByIdEndpoint(s),
 		GetAll:  makeGetAllEndpoint(s),
-		Detele:  makeDeleteEndpoint(s),
+		Delete:  makeDeleteEndpoint(s),
+		Update:  makeUpdateEndpoint(s),
 	}
 }
+
+func makeUpdateEndpoint(s Service) Controller {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var course UpdateCourseDTO
+		err := json.NewDecoder(r.Body).Decode(&course)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "Invalid request",
+				Data:   nil,
+			})
+			return
+		}
+		if course.Name != nil && *course.Name == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "name is required",
+				Data:   nil,
+			})
+			return
+		}
+		path := mux.Vars(r)
+		course.ID = path["id"]
+		err = s.Update(course)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "Course not found",
+			})
+			return
+		}
+		json.NewEncoder(w).Encode(&Response{
+			Status: 200,
+			Data:   "Success",
+		})
+	}
+}
+
 func makeDeleteEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := mux.Vars(r)

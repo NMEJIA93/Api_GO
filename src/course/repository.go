@@ -14,6 +14,7 @@ type (
 		GetAll(filter Filters, offset int, limit int) ([]Course, error)
 		Count(filters Filters) (int, error)
 		Delete(id string) error
+		Update(course UpdateCourseDTO) error
 	}
 
 	repository struct {
@@ -27,6 +28,22 @@ func NewRepository(log *log.Logger, db *gorm.DB) Repository {
 		log: log,
 		db:  db,
 	}
+}
+func (r *repository) Update(course UpdateCourseDTO) error {
+	values := make(map[string]interface{})
+	if course.Name != nil {
+		values["name"] = *course.Name
+	}
+	if course.StartDate != nil {
+		values["start_date"] = *course.StartDate
+	}
+	if course.EndDate != nil {
+		values["end_date"] = *course.EndDate
+	}
+	if err := r.db.Model(&Course{}).Where("id = ?", course.ID).Updates(values).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *repository) Create(course *Course) error {
