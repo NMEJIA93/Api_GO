@@ -10,6 +10,9 @@ import (
 type (
 	Repository interface {
 		Create(course *Course) error
+		GetByID(id string) (*Course, error)
+		GetAll(filter Filters, offset int, limit int) ([]Course, error)
+		Count(filters Filters) (int, error)
 	}
 
 	repository struct {
@@ -34,7 +37,7 @@ func (r *repository) Create(course *Course) error {
 	return nil
 }
 
-func (r *repository) GetById(id string) (*Course, error) {
+func (r *repository) GetByID(id string) (*Course, error) {
 	course := Course{ID: id}
 	err := r.db.First(&course).Error
 	if err != nil {
@@ -55,6 +58,17 @@ func (r *repository) GetAll(filter Filters, offset int, limit int) ([]Course, er
 		return nil, err
 	}
 	return courses, nil
+}
+
+func (r *repository) Count(filters Filters) (int, error) {
+	var count int64
+	tx := r.db.Model(Course{})
+	tx = applyFilters(tx, filters)
+	if err := tx.Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 func applyFilters(tx *gorm.DB, filters Filters) *gorm.DB {

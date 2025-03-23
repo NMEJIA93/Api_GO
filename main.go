@@ -41,6 +41,8 @@ func main() {
 	router.HandleFunc("/user/{id}", userEnd.Delete).Methods("DELETE")
 
 	router.HandleFunc("/courses", courseEnd.Create).Methods("POST")
+	router.HandleFunc("/courses/{id}", courseEnd.GetById).Methods("GET")
+	router.HandleFunc("/courses", courseEnd.GetAll).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      router,

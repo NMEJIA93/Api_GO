@@ -8,6 +8,9 @@ import (
 type (
 	Service interface {
 		Create(dto CreateCourseDTO) (*Course, error)
+		Get(id string) (*Course, error)
+		GetAll(filter Filters, offset int, limit int) ([]Course, error)
+		Count(filter Filters) (int, error)
 	}
 	service struct {
 		log  *log.Logger
@@ -24,6 +27,25 @@ func NewService(log *log.Logger, repo Repository) Service {
 		repo: repo,
 	}
 }
+
+func (s service) Get(id string) (*Course, error) {
+	s.log.Println("Get Course Service")
+	course, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return course, nil
+}
+func (s service) GetAll(filter Filters, offset int, limit int) ([]Course, error) {
+	s.log.Println("GetAll Course Service")
+	courses, err := s.repo.GetAll(filter, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	return courses, nil
+}
+
 func (s service) Create(dto CreateCourseDTO) (*Course, error) {
 	s.log.Println("Create Course Service")
 
@@ -47,4 +69,8 @@ func (s service) Create(dto CreateCourseDTO) (*Course, error) {
 		return nil, err
 	}
 	return course, nil
+}
+
+func (s service) Count(filter Filters) (int, error) {
+	return s.repo.Count(filter)
 }
