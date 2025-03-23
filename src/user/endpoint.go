@@ -3,7 +3,9 @@ package user
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/NMEJIA93/Api_GO/pkg/meta"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -39,6 +41,7 @@ type (
 		Status int         `json:"status"`
 		Data   interface{} `json:"data,omitempty"`
 		Error  string      `json:"error,omitempty"`
+		Meta   *meta.Meta  `json:"meta,omitempty"`
 	}
 )
 
@@ -160,8 +163,27 @@ func makeGetAllEndpoint(s Service) Controller {
 			FirstName: v.Get("first_name"),
 			LastName:  v.Get("last_name"),
 		}
+		limit, _ := strconv.Atoi(v.Get("limit"))
+		page, _ := strconv.Atoi(v.Get("page"))
 
-		users, err := s.GetAll(filters)
+		count, err := s.Count(filters)
+		if err != nil {
+			w.WriteHeader(500)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 500,
+				Error:  err.Error(),
+			})
+		}
+		meta, err := meta.New(page, limit, count)
+		if err != nil {
+			w.WriteHeader(500)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 500,
+				Error:  err.Error(),
+			})
+		}
+
+		users, err := s.GetAll(filters, meta.Offset(), meta.Limit())
 		if err != nil {
 			w.WriteHeader(400)
 			json.NewEncoder(w).Encode(&Response{
@@ -170,9 +192,11 @@ func makeGetAllEndpoint(s Service) Controller {
 			})
 			return
 		}
+
 		json.NewEncoder(w).Encode(&Response{
 			Status: 200,
 			Data:   users,
+			Meta:   meta,
 		})
 	}
 }

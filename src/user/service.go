@@ -8,9 +8,10 @@ type (
 	Service interface {
 		Create(dto CreateUserDTO) (*User, error)
 		Get(id string) (*User, error)
-		GetAll(filter Filters) ([]User, error)
+		GetAll(filter Filters, offset int, limit int) ([]User, error)
 		Delete(id string) error
 		Update(id string, firstName *string, lastName *string, email *string, phone *string) error
+		Count(filter Filters) (int, error)
 	}
 
 	service struct {
@@ -46,8 +47,8 @@ func (s service) Create(dto CreateUserDTO) (*User, error) {
 	return &user, nil
 }
 
-func (s service) GetAll(filter Filters) ([]User, error) {
-	users, err := s.repo.GetAll(filter)
+func (s service) GetAll(filter Filters, offset int, limit int) ([]User, error) {
+	users, err := s.repo.GetAll(filter, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -68,4 +69,8 @@ func (s service) Delete(id string) error {
 
 func (s service) Update(id string, firstName *string, lastName *string, email *string, phone *string) error {
 	return s.repo.Update(id, firstName, lastName, email, phone)
+}
+
+func (s service) Count(filter Filters) (int, error) {
+	return s.repo.Count(filter)
 }

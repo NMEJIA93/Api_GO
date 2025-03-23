@@ -12,10 +12,11 @@ import (
 
 type Respository interface {
 	Create(user *User) error
-	GetAll(filters Filters) ([]User, error)
+	GetAll(filters Filters, offset int, limit int) ([]User, error)
 	Get(id string) (*User, error)
 	Delete(id string) error
 	Update(id string, firstName *string, lasName *string, email *string, phone *string) error
+	Count(filters Filters) (int, error)
 }
 
 type repository struct {
@@ -42,11 +43,12 @@ func (r *repository) Create(user *User) error {
 	return nil
 }
 
-func (r *repository) GetAll(filter Filters) ([]User, error) {
+func (r *repository) GetAll(filter Filters, offset int, limit int) ([]User, error) {
 	var user []User
 
 	tx := r.db.Model(&User{})
 	tx = applyFilters(tx, filter)
+	tx = tx.Limit(limit).Offset(offset)
 	result := tx.Order("Created_at desc").Find(&user)
 	if result.Error != nil {
 		return nil, result.Error
@@ -104,6 +106,17 @@ func (r *repository) Update(id string, firstName *string, lastName *string, emai
 	}
 
 	return nil
+}
+
+func (r *repository) Count(filters Filters) (int, error) {
+	var count int64
+	tx := r.db.Model(User{})
+	tx = applyFilters(tx, filters)
+	if err := tx.Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 func applyFilters(tx *gorm.DB, filters Filters) *gorm.DB {

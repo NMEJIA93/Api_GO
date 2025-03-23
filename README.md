@@ -13,6 +13,12 @@ This project is an API developed in Go that allows managing users. It uses GORM 
 - **Environment Variables**: godotenv
 - **Containers**: Docker
 
+## 📋 Prerequisites
+
+- Go 1.16 or higher
+- Docker
+- Docker Compose
+
 ## 📥 Steps to Download
 
 1. Clone the repository:
@@ -22,6 +28,13 @@ This project is an API developed in Go that allows managing users. It uses GORM 
 2. Navigate to the project directory:
     ```sh
     cd Api_GO
+    ```
+
+## 🔧 Installation
+
+1. Install Go dependencies:
+    ```sh
+    go mod tidy
     ```
 
 ## 🚀 Steps to Run
@@ -44,6 +57,7 @@ This project is an API developed in Go that allows managing users. It uses GORM 
     ```sh
     go run main.go
     ```
+
 
 ## 📡 Exposed Endpoints and Examples
 
