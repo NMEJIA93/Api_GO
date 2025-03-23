@@ -4,18 +4,25 @@ import (
 	"log"
 )
 
-type Service interface {
-	Create(dto CreateUserDTO) (*User, error)
-	Get(id string) (*User, error)
-	GetAll() ([]User, error)
-	Delete(id string) error
-	Update(id string, firstName *string, lastName *string, email *string, phone *string) error
-}
+type (
+	Service interface {
+		Create(dto CreateUserDTO) (*User, error)
+		Get(id string) (*User, error)
+		GetAll(filter Filters) ([]User, error)
+		Delete(id string) error
+		Update(id string, firstName *string, lastName *string, email *string, phone *string) error
+	}
 
-type service struct {
-	log  *log.Logger
-	repo Respository
-}
+	service struct {
+		log  *log.Logger
+		repo Respository
+	}
+
+	Filters struct {
+		FirstName string
+		LastName  string
+	}
+)
 
 func NewService(log *log.Logger, repo Respository) Service {
 	return &service{
@@ -39,8 +46,8 @@ func (s service) Create(dto CreateUserDTO) (*User, error) {
 	return &user, nil
 }
 
-func (s service) GetAll() ([]User, error) {
-	users, err := s.repo.GetAll()
+func (s service) GetAll(filter Filters) ([]User, error) {
+	users, err := s.repo.GetAll(filter)
 	if err != nil {
 		return nil, err
 	}

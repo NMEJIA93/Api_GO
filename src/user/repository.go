@@ -1,15 +1,18 @@
 package user
 
 import (
-	"gorm.io/gorm"
+	"fmt"
 	"log"
+	"strings"
+
+	"gorm.io/gorm"
 
 	"github.com/google/uuid"
 )
 
 type Respository interface {
 	Create(user *User) error
-	GetAll() ([]User, error)
+	GetAll(filters Filters) ([]User, error)
 	Get(id string) (*User, error)
 	Delete(id string) error
 	Update(id string, firstName *string, lasName *string, email *string, phone *string) error
@@ -39,10 +42,12 @@ func (r *repository) Create(user *User) error {
 	return nil
 }
 
-func (r *repository) GetAll() ([]User, error) {
+func (r *repository) GetAll(filter Filters) ([]User, error) {
 	var user []User
-	result := r.db.Model(&user).Order("created_at desc").Find(&user)
 
+	tx := r.db.Model(&User{})
+	tx = applyFilters(tx, filter)
+	result := tx.Order("Created_at desc").Find(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -74,7 +79,7 @@ func (r *repository) Delete(id string) error {
 	if result != nil {
 		return result
 	}
-	
+
 	return nil
 }
 
@@ -99,4 +104,17 @@ func (r *repository) Update(id string, firstName *string, lastName *string, emai
 	}
 
 	return nil
+}
+
+func applyFilters(tx *gorm.DB, filters Filters) *gorm.DB {
+	if filters.FirstName != "" {
+		filters.FirstName = fmt.Sprintf("%%%s%%", strings.ToLower(filters.FirstName))
+		tx = tx.Where("lower(first_name) LIKE ?", filters.FirstName)
+	}
+
+	if filters.LastName != "" {
+		filters.LastName = fmt.Sprintf("%%%s%%", strings.ToLower(filters.LastName))
+		tx = tx.Where("lower(first_name) LIKE ?", filters.LastName)
+	}
+	return tx
 }

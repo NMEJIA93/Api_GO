@@ -3,8 +3,9 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type (
@@ -131,6 +132,7 @@ func makeDeleteEndpoint(s Service) Controller {
 
 func makeGetEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		path := mux.Vars(r)
 		id := path["id"]
 		user, err := s.Get(id)
@@ -152,8 +154,14 @@ func makeGetEndpoint(s Service) Controller {
 
 func makeGetAllEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Get All user")
-		users, err := s.GetAll()
+
+		v := r.URL.Query()
+		filters := Filters{
+			FirstName: v.Get("first_name"),
+			LastName:  v.Get("last_name"),
+		}
+
+		users, err := s.GetAll(filters)
 		if err != nil {
 			w.WriteHeader(400)
 			json.NewEncoder(w).Encode(&Response{
