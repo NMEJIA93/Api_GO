@@ -1,14 +1,15 @@
 package user
 
 import (
+	"github.com/NMEJIA93/Api_GO/src/domain"
 	"log"
 )
 
 type (
 	Service interface {
-		Create(dto CreateUserDTO) (*User, error)
-		Get(id string) (*User, error)
-		GetAll(filter Filters, offset int, limit int) ([]User, error)
+		Create(dto CreateUserDTO) (*domain.User, error)
+		Get(id string) (*domain.User, error)
+		GetAll(filter Filters, offset int, limit int) ([]domain.User, error)
 		Delete(id string) error
 		Update(id string, firstName *string, lastName *string, email *string, phone *string) error
 		Count(filter Filters) (int, error)
@@ -32,9 +33,9 @@ func NewService(log *log.Logger, repo Respository) Service {
 	}
 }
 
-func (s service) Create(dto CreateUserDTO) (*User, error) {
+func (s service) Create(dto CreateUserDTO) (*domain.User, error) {
 	s.log.Println("Create User Service")
-	user := User{
+	user := domain.User{
 		FirstName: dto.FirstName,
 		LastName:  dto.LastName,
 		Email:     dto.Email,
@@ -47,7 +48,7 @@ func (s service) Create(dto CreateUserDTO) (*User, error) {
 	return &user, nil
 }
 
-func (s service) GetAll(filter Filters, offset int, limit int) ([]User, error) {
+func (s service) GetAll(filter Filters, offset int, limit int) ([]domain.User, error) {
 	users, err := s.repo.GetAll(filter, offset, limit)
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func (s service) GetAll(filter Filters, offset int, limit int) ([]User, error) {
 	return users, nil
 }
 
-func (s service) Get(id string) (*User, error) {
+func (s service) Get(id string) (*domain.User, error) {
 	user, err := s.repo.Get(id)
 	if err != nil {
 		return nil, err

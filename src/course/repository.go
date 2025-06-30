@@ -2,6 +2,7 @@ package course
 
 import (
 	"fmt"
+	"github.com/NMEJIA93/Api_GO/src/domain"
 	"gorm.io/gorm"
 	"log"
 	"strings"
@@ -10,9 +11,9 @@ import (
 
 type (
 	Repository interface {
-		Create(course *Course) error
-		GetByID(id string) (*Course, error)
-		GetAll(filter Filters, offset int, limit int) ([]Course, error)
+		Create(course *domain.Course) error
+		GetByID(id string) (*domain.Course, error)
+		GetAll(filter Filters, offset int, limit int) ([]domain.Course, error)
 		Count(filters Filters) (int, error)
 		Delete(id string) error
 		Update(id string, name *string, start *time.Time, end *time.Time) error
@@ -41,13 +42,13 @@ func (r *repository) Update(id string, name *string, start *time.Time, end *time
 	if end != nil {
 		values["end_date"] = *end
 	}
-	if err := r.db.Model(&Course{}).Where("id = ?", id).Updates(values).Error; err != nil {
+	if err := r.db.Model(&domain.Course{}).Where("id = ?", id).Updates(values).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *repository) Create(course *Course) error {
+func (r *repository) Create(course *domain.Course) error {
 	if err := r.db.Create(course).Error; err != nil {
 		r.log.Printf("Error while creating course: %v", err)
 		return err
@@ -56,8 +57,8 @@ func (r *repository) Create(course *Course) error {
 	return nil
 }
 
-func (r *repository) GetByID(id string) (*Course, error) {
-	course := Course{ID: id}
+func (r *repository) GetByID(id string) (*domain.Course, error) {
+	course := domain.Course{ID: id}
 	err := r.db.First(&course).Error
 	if err != nil {
 		r.log.Printf("Error while getting course by id: %v", err)
@@ -66,10 +67,10 @@ func (r *repository) GetByID(id string) (*Course, error) {
 	return &course, nil
 }
 
-func (r *repository) GetAll(filter Filters, offset int, limit int) ([]Course, error) {
-	var courses []Course
+func (r *repository) GetAll(filter Filters, offset int, limit int) ([]domain.Course, error) {
+	var courses []domain.Course
 
-	tx := r.db.Model(&Course{})
+	tx := r.db.Model(&domain.Course{})
 	tx = applyFilters(tx, filter)
 	err := r.db.Find(&courses).Error
 	if err != nil {
@@ -81,7 +82,7 @@ func (r *repository) GetAll(filter Filters, offset int, limit int) ([]Course, er
 
 func (r *repository) Count(filters Filters) (int, error) {
 	var count int64
-	tx := r.db.Model(Course{})
+	tx := r.db.Model(domain.Course{})
 	tx = applyFilters(tx, filters)
 	if err := tx.Count(&count).Error; err != nil {
 		return 0, err
@@ -91,7 +92,7 @@ func (r *repository) Count(filters Filters) (int, error) {
 }
 
 func (r *repository) Delete(id string) error {
-	course := Course{ID: id}
+	course := domain.Course{ID: id}
 	err := r.db.First(&course).Error
 	if err != nil {
 		return err

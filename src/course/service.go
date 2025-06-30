@@ -1,15 +1,16 @@
 package course
 
 import (
+	"github.com/NMEJIA93/Api_GO/src/domain"
 	"log"
 	"time"
 )
 
 type (
 	Service interface {
-		Create(dto CreateCourseDTO) (*Course, error)
-		Get(id string) (*Course, error)
-		GetAll(filter Filters, offset int, limit int) ([]Course, error)
+		Create(dto CreateCourseDTO) (*domain.Course, error)
+		Get(id string) (*domain.Course, error)
+		GetAll(filter Filters, offset int, limit int) ([]domain.Course, error)
 		Count(filter Filters) (int, error)
 		Delete(id string) error
 		Update(course UpdateCourseDTO) error
@@ -51,7 +52,7 @@ func (s service) Update(course UpdateCourseDTO) error {
 	return s.repo.Update(course.ID, course.Name, startDateParsed, endDateParsed)
 }
 
-func (s service) Get(id string) (*Course, error) {
+func (s service) Get(id string) (*domain.Course, error) {
 	s.log.Println("Get Course Service")
 	course, err := s.repo.GetByID(id)
 	if err != nil {
@@ -60,7 +61,7 @@ func (s service) Get(id string) (*Course, error) {
 
 	return course, nil
 }
-func (s service) GetAll(filter Filters, offset int, limit int) ([]Course, error) {
+func (s service) GetAll(filter Filters, offset int, limit int) ([]domain.Course, error) {
 	s.log.Println("GetAll Course Service")
 	courses, err := s.repo.GetAll(filter, offset, limit)
 	if err != nil {
@@ -69,7 +70,7 @@ func (s service) GetAll(filter Filters, offset int, limit int) ([]Course, error)
 	return courses, nil
 }
 
-func (s service) Create(dto CreateCourseDTO) (*Course, error) {
+func (s service) Create(dto CreateCourseDTO) (*domain.Course, error) {
 	s.log.Println("Create Course Service")
 
 	startDateParsed, err := time.Parse("2006-01-02", dto.StartDate)
@@ -83,7 +84,7 @@ func (s service) Create(dto CreateCourseDTO) (*Course, error) {
 		return nil, err
 	}
 
-	course := &Course{
+	course := &domain.Course{
 		Name:      dto.Name,
 		StartDate: startDateParsed,
 		EndDate:   endDateParsed,

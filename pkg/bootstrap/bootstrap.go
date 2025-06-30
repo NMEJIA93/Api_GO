@@ -2,13 +2,11 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/NMEJIA93/Api_GO/src/course"
+	"github.com/NMEJIA93/Api_GO/src/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"os"
-
-	"github.com/NMEJIA93/Api_GO/src/user"
 )
 
 func InitLogger() *log.Logger {
@@ -35,11 +33,11 @@ func BDConnection() (*gorm.DB, error) {
 	}
 
 	if os.Getenv("DATABASE_AUTO_MIGRATE") == "true" {
-		if err := db.AutoMigrate(&user.User{}); err != nil {
+		if err := db.AutoMigrate(&domain.User{}); err != nil {
 			return nil, err
 		}
 
-		if err := db.AutoMigrate(&course.Course{}); err != nil {
+		if err := db.AutoMigrate(&domain.Course{}); err != nil {
 			return nil, err
 		}
 	}
