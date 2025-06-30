@@ -65,6 +65,24 @@ func makeUpdateEndpoint(s Service) Controller {
 			})
 			return
 		}
+		if course.StartDate != nil && *course.StartDate == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "start date is required",
+				Data:   nil,
+			})
+			return
+		}
+		if course.EndDate != nil && *course.EndDate == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "end date is required",
+				Data:   nil,
+			})
+			return
+		}
 		path := mux.Vars(r)
 		course.ID = path["id"]
 		err = s.Update(course)

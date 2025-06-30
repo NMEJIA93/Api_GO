@@ -31,7 +31,24 @@ func NewService(log *log.Logger, repo Repository) Service {
 }
 
 func (s service) Update(course UpdateCourseDTO) error {
-	return s.repo.Update(course)
+
+	var startDateParsed *time.Time
+	if &course.StartDate != nil {
+		date, err := time.Parse("2006-01-02", *course.StartDate)
+		if err != nil {
+			return err
+		}
+		startDateParsed = &date
+	}
+	if &course.EndDate != nil {
+		date, err := time.Parse("2006-01-02", *course.EndDate)
+		if err != nil {
+			return err
+		}
+		startDateParsed = &date
+	}
+
+	return s.repo.Update(course.ID, course.Name, startDateParsed, startDateParsed)
 }
 
 func (s service) Get(id string) (*Course, error) {

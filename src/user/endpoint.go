@@ -67,7 +67,10 @@ func makeCreateEndpoint(s Service) Controller {
 
 		if req.FirstName == "" {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(&Response{Status: 400, Error: "first name is required", Data: nil})
+			json.NewEncoder(w).Encode(&Response{
+				Status: 400,
+				Error:  "first name is required",
+				Data:   nil})
 		}
 		if req.LastName == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -225,7 +228,7 @@ func makeUpdateEndpoint(s Service) Controller {
 			return
 		}
 
-		if req.FirstName != nil && *req.LastName == "" {
+		if req.LastName != nil && *req.LastName == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(&Response{
 				Status: 400,

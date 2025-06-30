@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"strings"
+	"time"
 )
 
 type (
@@ -14,7 +15,7 @@ type (
 		GetAll(filter Filters, offset int, limit int) ([]Course, error)
 		Count(filters Filters) (int, error)
 		Delete(id string) error
-		Update(course UpdateCourseDTO) error
+		Update(id string, name *string, start *time.Time, end *time.Time) error
 	}
 
 	repository struct {
@@ -29,18 +30,18 @@ func NewRepository(log *log.Logger, db *gorm.DB) Repository {
 		db:  db,
 	}
 }
-func (r *repository) Update(course UpdateCourseDTO) error {
+func (r *repository) Update(id string, name *string, start *time.Time, end *time.Time) error {
 	values := make(map[string]interface{})
-	if course.Name != nil {
-		values["name"] = *course.Name
+	if name != nil {
+		values["name"] = *name
 	}
-	if course.StartDate != nil {
-		values["start_date"] = *course.StartDate
+	if start != nil {
+		values["start_date"] = *start
 	}
-	if course.EndDate != nil {
-		values["end_date"] = *course.EndDate
+	if end != nil {
+		values["end_date"] = *end
 	}
-	if err := r.db.Model(&Course{}).Where("id = ?", course.ID).Updates(values).Error; err != nil {
+	if err := r.db.Model(&Course{}).Where("id = ?", id).Updates(values).Error; err != nil {
 		return err
 	}
 	return nil
