@@ -32,7 +32,7 @@ func NewService(log *log.Logger, repo Repository) Service {
 
 func (s service) Update(course UpdateCourseDTO) error {
 
-	var startDateParsed *time.Time
+	var startDateParsed, endDateParsed *time.Time
 	if &course.StartDate != nil {
 		date, err := time.Parse("2006-01-02", *course.StartDate)
 		if err != nil {
@@ -45,10 +45,10 @@ func (s service) Update(course UpdateCourseDTO) error {
 		if err != nil {
 			return err
 		}
-		startDateParsed = &date
+		endDateParsed = &date
 	}
 
-	return s.repo.Update(course.ID, course.Name, startDateParsed, startDateParsed)
+	return s.repo.Update(course.ID, course.Name, startDateParsed, endDateParsed)
 }
 
 func (s service) Get(id string) (*Course, error) {
