@@ -8,11 +8,10 @@ import (
 )
 
 type Course struct {
-	ID        string          `json:"id" gorm:"char(36); not null; primary_key; unique_index"`
+	ID        string          `json:"id" gorm:"type:char(36);not null;primary_key;uniqueIndex"`
 	Name      string          `json:"name" gorm:"char(50); not null"`
 	StartDate time.Time       `json:"start_date"`
 	EndDate   time.Time       `json:"end_date"`
-	User      *User           `gorm:"-"`
 	CreateAt  *time.Time      `json:"-"`
 	UpdatedAt *time.Time      `json:"-"`
 	Delete    *gorm.DeletedAt `json:"-"`

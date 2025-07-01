@@ -7,6 +7,7 @@ import (
 
 	"github.com/NMEJIA93/Api_GO/pkg/bootstrap"
 	"github.com/NMEJIA93/Api_GO/src/course"
+	"github.com/NMEJIA93/Api_GO/src/enrollment"
 	"github.com/NMEJIA93/Api_GO/src/user"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -33,6 +34,10 @@ func main() {
 	courseService := course.NewService(l, courseRepo)
 	courseEnd := course.MakeEndpoints(courseService)
 
+	enrollRepo := enrollment.NewRepo(l, db)
+	enrollService := enrollment.NewService(l, enrollRepo)
+	enrollEnd := enrollment.MakeEndpoints(enrollService)
+
 	router.HandleFunc("/user/{id}", userEnd.Get).Methods("GET")
 	router.HandleFunc("/user", userEnd.GetAll).Methods("GET")
 	router.HandleFunc("/user", userEnd.Create).Methods("POST")
@@ -45,6 +50,8 @@ func main() {
 	router.HandleFunc("/courses", courseEnd.GetAll).Methods("GET")
 	router.HandleFunc("/courses/{id}", courseEnd.Delete).Methods("DELETE")
 	router.HandleFunc("/courses/{id}", courseEnd.Update).Methods("PATCH")
+
+	router.HandleFunc("/enrollments", enrollEnd.Create).Methods("POST")
 
 	srv := &http.Server{
 		Handler:      router,
