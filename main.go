@@ -35,7 +35,7 @@ func main() {
 	courseEnd := course.MakeEndpoints(courseService)
 
 	enrollRepo := enrollment.NewRepo(l, db)
-	enrollService := enrollment.NewService(l, enrollRepo)
+	enrollService := enrollment.NewService(l, userService, courseService, enrollRepo)
 	enrollEnd := enrollment.MakeEndpoints(enrollService)
 
 	router.HandleFunc("/user/{id}", userEnd.Get).Methods("GET")
